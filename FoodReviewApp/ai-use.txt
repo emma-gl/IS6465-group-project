@@ -1,0 +1,11 @@
+Prompts:
+build a login page that allows the user to enter a username and password. make both fields required. this page should not have any data validation, aside from checking whether the username and password fields are empty
+When the user clicks the "login" button, redirect them to landing-page.php
+build a landing page for a restaurant review website that contains the following features: 1. A scrollable list of restaurants, each restaurant containing the name of the restaurant, a description of the restaurant, the restaurant's ratings, and a button to "see more details" The "See more details" button should redirect the user to the restaurant-details.php page. Make up fake restaurants, details/descriptions, and ratings for this section. 2. An "account Info" button that redirects user's to the account-info.php page
+Take the header that is currently applied to landing-page.php, and move it to header.php. Then re-add this header back to landing-page.php through a "require_once 'includes/header.php' statement.
+migrate all css present in landing-page.php to styles.css, and reapply it to landing-page.php in a way that ensures there is no css code within landing-page.php
+migrate all css present in login.php to styles.css, and reapply it to login.php in a way that ensures there is no css code within login.php
+build a restaurant details page that includes the restaurant's name, restaurant description, restaurant rating, and a follow button. The restaurant name, description and rating should directly correspond to the restaurant that the user selected from landing-page.php. Apply the css theme from styles.css
+build a user account information page where users can see a list of restaurants they follow, and a list of reviews they posted. Just use fake data and do not incorporate any features here with any features in the rest of the site
+for each of the restaurant pages, add a button that allows a user to write their own review. This should make a text box appear, and also give the user the ability to select between 1 and 5 stars. Currently, make the "submit review" button say "This feature is not yet available"
+Make the "Write a review" buttons the same css style as the "follow" buttons
