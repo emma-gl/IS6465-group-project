@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $username = '';
 $error = '';
 
@@ -12,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $error = 'Please enter both your username and password.';
     } else {
+        // TEMPORARY: remember which login button was pressed so Account Info opens the right page.
+        $_SESSION['role'] = ($_POST['role'] ?? '') === 'restaurant_owner' ? 'restaurant_owner' : 'reviewer';
         header('Location: landing-page.php');
         exit;
     }
@@ -54,7 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 required
             >
 
-            <button type="submit">Log in</button>
+            <div class="login-buttons">
+                <button type="submit" name="role" value="reviewer">Log in as Reviewer</button>
+                <button type="submit" name="role" value="restaurant_owner">Log in as Restaurant Owner</button>
+            </div>
         </form>
     </main>
 </body>

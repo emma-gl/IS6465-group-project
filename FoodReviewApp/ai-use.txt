@@ -9,3 +9,4 @@ build a restaurant details page that includes the restaurant's name, restaurant 
 build a user account information page where users can see a list of restaurants they follow, and a list of reviews they posted. Just use fake data and do not incorporate any features here with any features in the rest of the site
 for each of the restaurant pages, add a button that allows a user to write their own review. This should make a text box appear, and also give the user the ability to select between 1 and 5 stars. Currently, make the "submit review" button say "This feature is not yet available"
 Make the "Write a review" buttons the same css style as the "follow" buttons
+Can you create two separate views for Restaurant Management and Review Management and make 2 separate buttons for this in login.php?

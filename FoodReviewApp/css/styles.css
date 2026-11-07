@@ -583,3 +583,35 @@ body.login-page .error {
     color: #a12622;
     margin: 0 0 16px;
 }
+
+/* Temporary account-type buttons on the login page */
+body.login-page .login-buttons {
+    display: grid;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+body.login-page .login-buttons button {
+    margin-top: 0;
+}
+
+body.login-page .login-buttons button + button {
+    background: #fff;
+    border: 1px solid #287348;
+    color: #287348;
+}
+
+body.login-page .login-buttons button + button:hover {
+    background: #eef5f0;
+}
+
+body.login-page .temp-note {
+    background: #fff8e6;
+    border: 1px dashed #d9a521;
+    border-radius: 6px;
+    color: #6b5212;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 24px 0 0;
+    padding: 12px 14px;
+}

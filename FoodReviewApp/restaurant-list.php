@@ -47,7 +47,7 @@ uasort($sortedRestaurants, function ($a, $b) use ($sortField, $sortDirection) {
                 </select>
                 <noscript><button class="secondary-button" type="submit">Sort</button></noscript>
             </form>
-            <a class="details-button" href="restaurant-add.php">Add a restaurant</a>
+                <a class="details-button" href="restaurant-add.php">Add a restaurant</a>
         </div>
 
         <section class="restaurant-list" aria-label="Restaurants">

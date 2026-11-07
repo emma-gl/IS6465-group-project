@@ -1,11 +1,18 @@
 <?php
+session_start();
+
+// TEMPORARY
+if (($_SESSION['role'] ?? '') === 'restaurant_owner') {
+    header('Location: owner-account-info.php');
+    exit;
+}
+
 require_once 'includes/restaurants.php';
 require_once 'includes/reviews.php';
 
-// dummy data for the logged-in user until login/sessions are implemented
+// dummy data for the logged-in reviewer until real accounts exist
 $currentUser = 'emma';
 $followedRestaurantIds = ['olive-ember', 'harborlight-kitchen', 'cedar-bowl-noodle-bar'];
-
 $userReviews = array_filter($reviews, fn ($review) => $review['user'] === $currentUser);
 ?>
 <!DOCTYPE html>

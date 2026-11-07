@@ -64,10 +64,10 @@ if ($restaurant === null) {
                 </div>
 
                 <section class="manage-section" aria-labelledby="manage-heading">
-                    <h2 id="manage-heading">Manage restaurant (for restaurant owners only)</h2>
+                    <h2 id="manage-heading">Manage restaurant</h2>
                     <div class="page-actions">
                         <a class="secondary-button" href="restaurant-edit.php?restaurant=<?= urlencode($restaurantId) ?>">Edit restaurant</a>
-                        <button class="danger-button" type="button">Delete restaurant</button>
+                        <a class="danger-button" href="restaurant-delete.php?restaurant=<?= urlencode($restaurantId) ?>">Delete restaurant</a>
                     </div>
                 </section>
             </article>
