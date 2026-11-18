@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('Member', 'Restaurant', 'Admin')),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     restaurant_id INTEGER NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     cuisine_type VARCHAR(100) NOT NULL,
-    price_range VARCHAR(50) NOT NULL,
+    price_range VARCHAR(50) NOT NULL CHECK (price_range IN ('$', '$$', '$$$', '$$$$')),
     address VARCHAR(255) NOT NULL,
     city VARCHAR(100) NOT NULL,
     phone VARCHAR(30) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS premium_membership (
     paid_at TIMESTAMP NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status VARCHAR(50) NOT NULL
+    status VARCHAR(50) NOT NULL CHECK (status IN ('Active', 'Expired', 'Cancelled'))
 );
 
 CREATE TABLE IF NOT EXISTS follow (
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS review (
     review_id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL,
     food_item_id INTEGER NOT NULL,
-    rating INTEGER NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
