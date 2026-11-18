@@ -24,6 +24,18 @@ header a {
     text-decoration: none;
 }
 
+.header-links {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.header-user {
+    color: #5c6b62;
+}
+
 main {
     margin: 0 auto;
     max-width: 960px;
@@ -582,27 +594,6 @@ body.login-page button:hover {
 body.login-page .error {
     color: #a12622;
     margin: 0 0 16px;
-}
-
-/* Temporary account-type buttons on the login page */
-body.login-page .login-buttons {
-    display: grid;
-    gap: 10px;
-    margin-top: 24px;
-}
-
-body.login-page .login-buttons button {
-    margin-top: 0;
-}
-
-body.login-page .login-buttons button + button {
-    background: #fff;
-    border: 1px solid #287348;
-    color: #287348;
-}
-
-body.login-page .login-buttons button + button:hover {
-    background: #eef5f0;
 }
 
 body.login-page .temp-note {

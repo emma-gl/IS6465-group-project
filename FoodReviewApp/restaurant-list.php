@@ -1,4 +1,5 @@
 <?php
+require_once 'includes/auth.php';
 require_once 'includes/restaurants.php';
 
 $sortOptions = [
@@ -14,12 +15,7 @@ if (!is_string($sort) || !isset($sortOptions[$sort])) {
 }
 
 [$sortField, $sortDirection] = explode('-', $sort);
-$sortedRestaurants = $restaurants;
-uasort($sortedRestaurants, function ($a, $b) use ($sortField, $sortDirection) {
-    return $sortDirection === 'asc'
-        ? $a[$sortField] <=> $b[$sortField]
-        : $b[$sortField] <=> $a[$sortField];
-});
+$sortedRestaurants = getRestaurants($sortField, $sortDirection);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,23 +43,28 @@ uasort($sortedRestaurants, function ($a, $b) use ($sortField, $sortDirection) {
                 </select>
                 <noscript><button class="secondary-button" type="submit">Sort</button></noscript>
             </form>
+            <?php if (canAddRestaurant()): ?>
                 <a class="details-button" href="restaurant-add.php">Add a restaurant</a>
+            <?php endif; ?>
         </div>
 
         <section class="restaurant-list" aria-label="Restaurants">
-            <?php foreach ($sortedRestaurants as $restaurantId => $restaurant): ?>
+            <?php if (count($sortedRestaurants) === 0): ?>
+                <p class="intro">No restaurants yet</p>
+            <?php endif; ?>
+            <?php foreach ($sortedRestaurants as $restaurant): ?>
                 <article class="restaurant-card">
                     <div class="restaurant-card-info">
                         <h2><?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?></h2>
-                        <p><?= htmlspecialchars($restaurant['description'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><?= htmlspecialchars($restaurant['cuisine'] . ' · ' . $restaurant['price_range'] . ' · ' . $restaurant['city'], ENT_QUOTES, 'UTF-8') ?></p>
                         <div class="restaurant-stats">
-                            <span class="rating" aria-label="Rated <?= $restaurant['rating'] ?> out of 5">
-                                <?= ratingStars($restaurant['rating']) ?> <?= $restaurant['rating'] ?> / 5
+                            <span class="rating" aria-label="Rating: <?= formatRating($restaurant['rating']) ?>">
+                                <?= ratingStars($restaurant['rating']) ?> <?= formatRating($restaurant['rating']) ?>
                             </span>
-                            <span class="followers"><?= number_format($restaurant['followers']) ?> followers</span>
+                            <span class="followers"><?= number_format($restaurant['followers']) ?> follower<?= (int) $restaurant['followers'] === 1 ? '' : 's' ?></span>
                         </div>
                     </div>
-                    <a class="details-button" href="restaurant-details.php?restaurant=<?= urlencode($restaurantId) ?>">View Details</a>
+                    <a class="details-button" href="restaurant-details.php?restaurant=<?= (int) $restaurant['id'] ?>">View Details</a>
                 </article>
             <?php endforeach; ?>
         </section>

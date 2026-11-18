@@ -1,23 +1,28 @@
 <?php
-session_start();
+require_once 'includes/auth.php';
 
-$username = '';
+if (isLoggedIn()) {
+    header('Location: landing-page.php');
+    exit;
+}
+
+$email = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $submittedUsername = $_POST['username'] ?? '';
+    $submittedEmail = $_POST['email'] ?? '';
     $submittedPassword = $_POST['password'] ?? '';
 
-    $username = is_string($submittedUsername) ? trim($submittedUsername) : '';
-    $password = is_string($submittedPassword) ? trim($submittedPassword) : '';
+    $email = is_string($submittedEmail) ? trim($submittedEmail) : '';
+    $password = is_string($submittedPassword) ? $submittedPassword : '';
 
-    if ($username === '' || $password === '') {
-        $error = 'Please enter both your username and password.';
-    } else {
-        // TEMPORARY: remember which login button was pressed so Account Info opens the right page.
-        $_SESSION['role'] = ($_POST['role'] ?? '') === 'restaurant_owner' ? 'restaurant_owner' : 'reviewer';
+    if ($email === '' || $password === '') {
+        $error = 'Please enter both your email and password.';
+    } elseif (attemptLogin($email, $password)) {
         header('Location: landing-page.php');
         exit;
+    } else {
+        $error = 'Incorrect email or password.';
     }
 }
 ?>
@@ -39,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post" action="">
-            <label for="username">Username</label>
+            <label for="email">Email</label>
             <input
-                type="text"
-                id="username"
-                name="username"
-                value="<?= htmlspecialchars($username, ENT_QUOTES, 'UTF-8') ?>"
+                type="email"
+                id="email"
+                name="email"
+                value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
                 autocomplete="username"
                 required
             >
@@ -58,10 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 required
             >
 
-            <div class="login-buttons">
-                <button type="submit" name="role" value="reviewer">Log in as Reviewer</button>
-                <button type="submit" name="role" value="restaurant_owner">Log in as Restaurant Owner</button>
-            </div>
+            <button type="submit">Log in</button>
         </form>
     </main>
 </body>

@@ -1,3 +1,6 @@
+<?php
+require_once 'includes/auth.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +18,11 @@
             <p class="intro">Explore local spots, see what diners are saying, and keep track of your own reviews.</p>
             <div class="home-actions">
                 <a class="details-button" href="restaurant-list.php">Restaurant List</a>
-                <a class="details-button" href="account-info.php">Account Info</a>
+                <?php if (isLoggedIn()): ?>
+                    <a class="details-button" href="account-info.php">Account Info</a>
+                <?php else: ?>
+                    <a class="details-button" href="login.php">Log in</a>
+                <?php endif; ?>
             </div>
         </section>
     </main>

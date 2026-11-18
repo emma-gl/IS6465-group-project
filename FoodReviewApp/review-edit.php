@@ -1,13 +1,20 @@
 <?php
+require_once 'includes/auth.php';
 require_once 'includes/restaurants.php';
 require_once 'includes/reviews.php';
 
-$reviewId = $_GET['id'] ?? '';
-$review = is_string($reviewId) && ctype_digit($reviewId) ? ($reviews[(int) $reviewId] ?? null) : null;
-$restaurant = $review === null ? null : ($restaurants[$review['restaurant']] ?? null);
+requireLogin();
+
+$reviewId = parseId($_GET['id'] ?? null);
+$review = $reviewId === null ? null : getReview($reviewId);
+$restaurant = $review === null ? null : getRestaurant((int) $review['restaurant_id']);
 
 if ($review === null || $restaurant === null) {
     http_response_code(404);
+} elseif (!canEditReview($review)) {
+    denyAccess();
+} else {
+    $foodItems = getFoodItems((int) $review['restaurant_id']);
 }
 ?>
 <!DOCTYPE html>
@@ -34,19 +41,19 @@ if ($review === null || $restaurant === null) {
                 <p class="intro"><?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?></p>
 
                 <form class="crud-form" method="post" action="">
-                    <input type="hidden" name="review_id" value="<?= (int) $reviewId ?>">
+                    <input type="hidden" name="review_id" value="<?= $reviewId ?>">
 
                     <label for="food-item">Food item</label>
-                    <select id="food-item" name="food_item" required>
-                        <?php foreach ($restaurant['food_items'] as $foodItem): ?>
-                            <option value="<?= htmlspecialchars($foodItem, ENT_QUOTES, 'UTF-8') ?>"<?= $foodItem === $review['food_item'] ? ' selected' : '' ?>><?= htmlspecialchars($foodItem, ENT_QUOTES, 'UTF-8') ?></option>
+                    <select id="food-item" name="food_item_id" required>
+                        <?php foreach ($foodItems as $foodItem): ?>
+                            <option value="<?= (int) $foodItem['id'] ?>"<?= (int) $foodItem['id'] === (int) $review['food_item_id'] ? ' selected' : '' ?>><?= htmlspecialchars($foodItem['name'], ENT_QUOTES, 'UTF-8') ?></option>
                         <?php endforeach; ?>
                     </select>
 
-                    <?php $selectedRating = $review['rating']; require 'includes/star-input.php'; ?>
+                    <?php $selectedRating = (int) $review['rating']; require 'includes/star-input.php'; ?>
 
                     <label for="comment">Your review</label>
-                    <textarea id="comment" name="comment" rows="5"><?= htmlspecialchars($review['comment'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                    <textarea id="comment" name="comment" rows="5"><?= htmlspecialchars($review['comment'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
 
                     <div class="page-actions">
                         <button class="follow-button" type="button">Save changes</button>

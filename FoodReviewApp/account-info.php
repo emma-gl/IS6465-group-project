@@ -1,8 +1,10 @@
 <?php
-session_start();
+require_once 'includes/auth.php';
 
-// TEMPORARY
-if (($_SESSION['role'] ?? '') === 'restaurant_owner') {
+requireLogin();
+
+// Restaurant owners get their own account page.
+if (hasRole('Restaurant')) {
     header('Location: owner-account-info.php');
     exit;
 }
@@ -10,10 +12,9 @@ if (($_SESSION['role'] ?? '') === 'restaurant_owner') {
 require_once 'includes/restaurants.php';
 require_once 'includes/reviews.php';
 
-// dummy data for the logged-in reviewer until real accounts exist
-$currentUser = 'emma';
-$followedRestaurantIds = ['olive-ember', 'harborlight-kitchen', 'cedar-bowl-noodle-bar'];
-$userReviews = array_filter($reviews, fn ($review) => $review['user'] === $currentUser);
+$currentUserId = currentUser()['id'];
+$userReviews = getReviewsByUser($currentUserId);
+$followedRestaurants = getFollowedRestaurants($currentUserId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,17 +45,17 @@ $userReviews = array_filter($reviews, fn ($review) => $review['user'] === $curre
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($userReviews as $reviewId => $review): ?>
+                            <?php foreach ($userReviews as $review): ?>
                                 <tr>
                                     <td>
-                                        <?= htmlspecialchars($restaurants[$review['restaurant']]['name'] ?? 'Unknown restaurant', ENT_QUOTES, 'UTF-8') ?>
+                                        <?= htmlspecialchars($review['restaurant_name'], ENT_QUOTES, 'UTF-8') ?>
                                         <span class="cell-note"><?= htmlspecialchars($review['food_item'], ENT_QUOTES, 'UTF-8') ?></span>
                                     </td>
                                     <td class="rating" aria-label="Rated <?= (int) $review['rating'] ?> out of 5"><?= ratingStars($review['rating']) ?></td>
-                                    <td><?= htmlspecialchars($review['date'], ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= formatReviewDate($review['created_at']) ?></td>
                                     <td>
                                         <div class="table-actions">
-                                            <a class="secondary-button button-small" href="review-edit.php?id=<?= (int) $reviewId ?>">Edit</a>
+                                            <a class="secondary-button button-small" href="review-edit.php?id=<?= (int) $review['id'] ?>">Edit</a>
                                             <button class="danger-button button-small" type="button">Delete</button>
                                         </div>
                                     </td>
@@ -76,14 +77,12 @@ $userReviews = array_filter($reviews, fn ($review) => $review['user'] === $curre
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($followedRestaurantIds as $restaurantId): ?>
-                                <?php $restaurant = $restaurants[$restaurantId] ?? null; ?>
-                                <?php if ($restaurant === null) continue; ?>
+                            <?php foreach ($followedRestaurants as $restaurant): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?></td>
                                     <td>
                                         <div class="table-actions">
-                                            <a class="secondary-button button-small" href="restaurant-details.php?restaurant=<?= urlencode($restaurantId) ?>">Info</a>
+                                            <a class="secondary-button button-small" href="restaurant-details.php?restaurant=<?= (int) $restaurant['id'] ?>">Info</a>
                                             <button class="danger-button button-small" type="button">Unfollow</button>
                                         </div>
                                     </td>

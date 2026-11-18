@@ -1,9 +1,10 @@
 <?php
+require_once 'includes/auth.php';
 require_once 'includes/restaurants.php';
 
-// dummy data for the logged-in restaurant owner until real accounts exist
-$ownedRestaurantIds = ['olive-ember', 'juniper-street-tacos'];
-$managedRestaurants = array_intersect_key($restaurants, array_flip($ownedRestaurantIds));
+requireRole('Restaurant');
+
+$managedRestaurants = getRestaurantsByIds(getOwnedRestaurantIds());
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,19 +39,20 @@ $managedRestaurants = array_intersect_key($restaurants, array_flip($ownedRestaur
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($managedRestaurants as $restaurantId => $restaurant): ?>
+                            <?php foreach ($managedRestaurants as $restaurant): ?>
+                                <?php $restaurantId = (int) $restaurant['id']; ?>
                                 <tr>
                                     <td>
                                         <?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?>
                                         <span class="cell-note"><?= htmlspecialchars($restaurant['cuisine'], ENT_QUOTES, 'UTF-8') ?> · <?= htmlspecialchars($restaurant['price_range'], ENT_QUOTES, 'UTF-8') ?></span>
                                     </td>
-                                    <td class="rating" aria-label="Rated <?= $restaurant['rating'] ?> out of 5"><?= ratingStars($restaurant['rating']) ?> <?= $restaurant['rating'] ?></td>
+                                    <td class="rating" aria-label="Rating: <?= formatRating($restaurant['rating']) ?>"><?= ratingStars($restaurant['rating']) ?> <?= formatRating($restaurant['rating']) ?></td>
                                     <td><?= number_format($restaurant['followers']) ?></td>
                                     <td>
                                         <div class="table-actions">
-                                            <a class="secondary-button button-small" href="restaurant-details.php?restaurant=<?= urlencode($restaurantId) ?>">Info</a>
-                                            <a class="secondary-button button-small" href="restaurant-edit.php?restaurant=<?= urlencode($restaurantId) ?>">Edit</a>
-                                            <a class="danger-button button-small" href="restaurant-delete.php?restaurant=<?= urlencode($restaurantId) ?>">Delete</a>
+                                            <a class="secondary-button button-small" href="restaurant-details.php?restaurant=<?= $restaurantId ?>">Info</a>
+                                            <a class="secondary-button button-small" href="restaurant-edit.php?restaurant=<?= $restaurantId ?>">Edit</a>
+                                            <a class="danger-button button-small" href="restaurant-delete.php?restaurant=<?= $restaurantId ?>">Delete</a>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,15 +1,18 @@
 <?php
+require_once 'includes/auth.php';
 require_once 'includes/restaurants.php';
 require_once 'includes/reviews.php';
 
-$restaurantId = $_GET['restaurant'] ?? '';
-$restaurant = is_string($restaurantId) ? ($restaurants[$restaurantId] ?? null) : null;
+$restaurantId = parseId($_GET['restaurant'] ?? null);
+$restaurant = $restaurantId === null ? null : getRestaurant($restaurantId);
 
 if ($restaurant === null) {
     http_response_code(404);
     $restaurantReviews = [];
+    $foodItems = [];
 } else {
-    $restaurantReviews = array_filter($reviews, fn ($review) => $review['restaurant'] === $restaurantId);
+    $restaurantReviews = getReviewsForRestaurant($restaurantId);
+    $foodItems = getFoodItems($restaurantId);
 }
 ?>
 <!DOCTYPE html>
@@ -32,7 +35,7 @@ if ($restaurant === null) {
             </section>
         <?php else: ?>
             <article class="restaurant-details">
-                <a class="back-link" href="restaurant-details.php?restaurant=<?= urlencode($restaurantId) ?>">← Back to restaurant details</a>
+                <a class="back-link" href="restaurant-details.php?restaurant=<?= $restaurantId ?>">← Back to restaurant details</a>
 
                 <div class="restaurant-layout">
                     <div class="restaurant-image" role="img" aria-label="<?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?> logo placeholder">
@@ -43,8 +46,8 @@ if ($restaurant === null) {
                     <div class="restaurant-info">
                         <h1><?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?></h1>
                         <div class="restaurant-stats">
-                            <span class="rating" aria-label="Average rating <?= $restaurant['rating'] ?> out of 5">
-                                <?= ratingStars($restaurant['rating']) ?> <?= $restaurant['rating'] ?> / 5
+                            <span class="rating" aria-label="Average rating: <?= formatRating($restaurant['rating']) ?>">
+                                <?= ratingStars($restaurant['rating']) ?> <?= formatRating($restaurant['rating']) ?>
                             </span>
                             <span class="followers"><?= count($restaurantReviews) ?> review<?= count($restaurantReviews) === 1 ? '' : 's' ?></span>
                         </div>
@@ -63,9 +66,9 @@ if ($restaurant === null) {
                                             </span>
                                         </div>
                                         <p class="review-date">
-                                            By <?= htmlspecialchars($review['user'], ENT_QUOTES, 'UTF-8') ?> · <?= htmlspecialchars($review['date'], ENT_QUOTES, 'UTF-8') ?>
+                                            By <?= htmlspecialchars($review['user'], ENT_QUOTES, 'UTF-8') ?> · <?= formatReviewDate($review['created_at']) ?>
                                         </p>
-                                        <p class="review-text"><?= htmlspecialchars($review['comment'], ENT_QUOTES, 'UTF-8') ?></p>
+                                        <p class="review-text"><?= htmlspecialchars($review['comment'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
                                     </article>
                                 <?php endforeach; ?>
                             </div>
@@ -73,15 +76,18 @@ if ($restaurant === null) {
                     </div>
                 </div>
 
+                <?php if (!isLoggedIn()): ?>
+                    <p class="intro"><a href="login.php">Log in</a>.</p>
+                <?php elseif (hasRole('Member')): ?>
                 <form class="crud-form write-review" method="post" action="">
                     <h2 id="write-review">Write a review</h2>
-                    <input type="hidden" name="restaurant" value="<?= htmlspecialchars($restaurantId, ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="restaurant" value="<?= $restaurantId ?>">
 
                     <label for="food-item">Food item</label>
-                    <select id="food-item" name="food_item" required>
+                    <select id="food-item" name="food_item_id" required>
                         <option value="">Select a food item</option>
-                        <?php foreach ($restaurant['food_items'] as $foodItem): ?>
-                            <option value="<?= htmlspecialchars($foodItem, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($foodItem, ENT_QUOTES, 'UTF-8') ?></option>
+                        <?php foreach ($foodItems as $foodItem): ?>
+                            <option value="<?= (int) $foodItem['id'] ?>"><?= htmlspecialchars($foodItem['name'], ENT_QUOTES, 'UTF-8') ?></option>
                         <?php endforeach; ?>
                     </select>
 
@@ -92,6 +98,7 @@ if ($restaurant === null) {
 
                     <button class="follow-button" type="button">Submit review</button>
                 </form>
+                <?php endif; ?>
             </article>
         <?php endif; ?>
     </main>
