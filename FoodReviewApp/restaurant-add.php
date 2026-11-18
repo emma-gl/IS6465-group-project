@@ -1,5 +1,8 @@
 <?php
+require_once 'includes/auth.php';
 require_once 'includes/restaurants.php';
+
+requireRole('Restaurant', 'Admin');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,8 +41,14 @@ require_once 'includes/restaurants.php';
                     <?php endforeach; ?>
                 </select>
 
-                <label for="description">Description</label>
-                <textarea id="description" name="description" rows="5"></textarea>
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" required>
+
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" required>
+
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" required>
 
                 <div class="page-actions">
                     <button class="follow-button" type="button">Add restaurant</button>

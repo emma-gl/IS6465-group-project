@@ -1,11 +1,15 @@
 <?php
+require_once 'includes/auth.php';
 require_once 'includes/restaurants.php';
 
-$restaurantId = $_GET['restaurant'] ?? '';
-$restaurant = is_string($restaurantId) ? ($restaurants[$restaurantId] ?? null) : null;
+$restaurantId = parseId($_GET['restaurant'] ?? null);
+$restaurant = $restaurantId === null ? null : getRestaurant($restaurantId);
 
 if ($restaurant === null) {
     http_response_code(404);
+} else {
+    $foodItems = getFoodItems($restaurantId);
+    $following = hasRole('Member') && isFollowing(currentUser()['id'], $restaurantId);
 }
 ?>
 <!DOCTYPE html>
@@ -41,35 +45,46 @@ if ($restaurant === null) {
                         <p class="restaurant-meta">
                             <?= htmlspecialchars($restaurant['cuisine'], ENT_QUOTES, 'UTF-8') ?> · <?= htmlspecialchars($restaurant['price_range'], ENT_QUOTES, 'UTF-8') ?>
                         </p>
-                        <p class="restaurant-description"><?= htmlspecialchars($restaurant['description'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p class="restaurant-description">
+                            <?= htmlspecialchars($restaurant['address'] . ', ' . $restaurant['city'], ENT_QUOTES, 'UTF-8') ?><br>
+                            <?= htmlspecialchars($restaurant['phone'], ENT_QUOTES, 'UTF-8') ?>
+                        </p>
                         <div class="restaurant-stats">
-                            <span class="rating" aria-label="Rated <?= $restaurant['rating'] ?> out of 5">
-                                <?= ratingStars($restaurant['rating']) ?> <?= $restaurant['rating'] ?> / 5
+                            <span class="rating" aria-label="Rating: <?= formatRating($restaurant['rating']) ?>">
+                                <?= ratingStars($restaurant['rating']) ?> <?= formatRating($restaurant['rating']) ?>
                             </span>
-                            <span class="followers"><?= number_format($restaurant['followers']) ?> followers</span>
+                            <span class="followers"><?= number_format($restaurant['followers']) ?> follower<?= (int) $restaurant['followers'] === 1 ? '' : 's' ?></span>
                         </div>
 
                         <h2 class="section-label">Menu items</h2>
-                        <ul class="menu-list">
-                            <?php foreach ($restaurant['food_items'] as $foodItem): ?>
-                                <li><?= htmlspecialchars($foodItem, ENT_QUOTES, 'UTF-8') ?></li>
-                            <?php endforeach; ?>
-                        </ul>
+                        <?php if (count($foodItems) === 0): ?>
+                            <p class="intro">No menu items yet.</p>
+                        <?php else: ?>
+                            <ul class="menu-list">
+                                <?php foreach ($foodItems as $foodItem): ?>
+                                    <li><?= htmlspecialchars($foodItem['name'], ENT_QUOTES, 'UTF-8') ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
 
                         <div class="page-actions">
-                            <button class="follow-button" type="button" aria-pressed="false">Follow</button>
-                            <a class="details-button" href="restaurant-reviews.php?restaurant=<?= urlencode($restaurantId) ?>">View reviews</a>
+                            <?php if (hasRole('Member')): ?>
+                                <button class="follow-button" type="button" aria-pressed="<?= $following ? 'true' : 'false' ?>"><?= $following ? 'Unfollow' : 'Follow' ?></button>
+                            <?php endif; ?>
+                            <a class="details-button" href="restaurant-reviews.php?restaurant=<?= $restaurantId ?>">View reviews</a>
                         </div>
                     </div>
                 </div>
 
-                <section class="manage-section" aria-labelledby="manage-heading">
-                    <h2 id="manage-heading">Manage restaurant</h2>
-                    <div class="page-actions">
-                        <a class="secondary-button" href="restaurant-edit.php?restaurant=<?= urlencode($restaurantId) ?>">Edit restaurant</a>
-                        <a class="danger-button" href="restaurant-delete.php?restaurant=<?= urlencode($restaurantId) ?>">Delete restaurant</a>
-                    </div>
-                </section>
+                <?php if (canManageRestaurant($restaurantId)): ?>
+                    <section class="manage-section" aria-labelledby="manage-heading">
+                        <h2 id="manage-heading">Manage restaurant</h2>
+                        <div class="page-actions">
+                            <a class="secondary-button" href="restaurant-edit.php?restaurant=<?= $restaurantId ?>">Edit restaurant</a>
+                            <a class="danger-button" href="restaurant-delete.php?restaurant=<?= $restaurantId ?>">Delete restaurant</a>
+                        </div>
+                    </section>
+                <?php endif; ?>
             </article>
         <?php endif; ?>
     </main>

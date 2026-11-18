@@ -47,7 +47,7 @@ INSERT INTO review (review_id, user_id, food_item_id, rating, comment, created_a
     (5, 3, 10, 4, 'Relaxed atmosphere, generous portions, and excellent coffee.',            '2026-09-29 12:00:00', '2026-09-29 12:00:00'),
     (6, 5, 13, 5, 'Rich broth with real heat. The noodles had a great chew.',                '2026-10-02 12:00:00', '2026-10-02 12:00:00');
 
--- this should be changed to a test user
+-- this should be changed to a test user (reviewer)
 INSERT INTO follow (user_id, restaurant_id, followed_at) VALUES
     (3, 1, '2026-09-05 12:00:00'),
     (3, 3, '2026-09-05 12:00:00'),

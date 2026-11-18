@@ -1,11 +1,16 @@
 <?php
+require_once 'includes/auth.php';
 require_once 'includes/restaurants.php';
 
-$restaurantId = $_GET['restaurant'] ?? '';
-$restaurant = is_string($restaurantId) ? ($restaurants[$restaurantId] ?? null) : null;
+requireLogin();
+
+$restaurantId = parseId($_GET['restaurant'] ?? null);
+$restaurant = $restaurantId === null ? null : getRestaurant($restaurantId);
 
 if ($restaurant === null) {
     http_response_code(404);
+} elseif (!canManageRestaurant($restaurantId)) {
+    denyAccess();
 }
 ?>
 <!DOCTYPE html>
@@ -26,13 +31,13 @@ if ($restaurant === null) {
                 <p class="intro">Choose a restaurant from the list to edit its information.</p>
                 <a class="details-button" href="restaurant-list.php">Back to restaurants</a>
             <?php else: ?>
-                <?php $detailsUrl = 'restaurant-details.php?restaurant=' . urlencode($restaurantId); ?>
+                <?php $detailsUrl = 'restaurant-details.php?restaurant=' . $restaurantId; ?>
                 <a class="back-link" href="<?= htmlspecialchars($detailsUrl, ENT_QUOTES, 'UTF-8') ?>">← Back to restaurant</a>
                 <h1>Edit <?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?></h1>
                 <p class="intro">Update or correct this restaurant's information.</p>
 
                 <form class="crud-form" method="post" action="">
-                    <input type="hidden" name="restaurant" value="<?= htmlspecialchars($restaurantId, ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="restaurant" value="<?= $restaurantId ?>">
 
                     <label for="name">Restaurant name</label>
                     <input type="text" id="name" name="name" value="<?= htmlspecialchars($restaurant['name'], ENT_QUOTES, 'UTF-8') ?>" required>
@@ -51,8 +56,14 @@ if ($restaurant === null) {
                         <?php endforeach; ?>
                     </select>
 
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="5"><?= htmlspecialchars($restaurant['description'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" value="<?= htmlspecialchars($restaurant['address'], ENT_QUOTES, 'UTF-8') ?>" required>
+
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" value="<?= htmlspecialchars($restaurant['city'], ENT_QUOTES, 'UTF-8') ?>" required>
+
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($restaurant['phone'], ENT_QUOTES, 'UTF-8') ?>" required>
 
                     <div class="page-actions">
                         <button class="follow-button" type="button">Save changes</button>

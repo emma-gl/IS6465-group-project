@@ -1,64 +1,85 @@
 <?php
-// dummy data shared for until the database is connected.
-$restaurants = [
-    'olive-ember' => [
-        'name' => 'Olive & Ember',
-        'cuisine' => 'Italian',
-        'price_range' => '$$',
-        'description' => 'A cozy neighborhood trattoria serving handmade pasta, wood-fired vegetables, and seasonal Italian favorites.',
-        'rating' => 4.8,
-        'followers' => 1240,
-        'food_items' => ['Cacio e Pepe', 'Wood-Fired Margherita', 'Tiramisu'],
-    ],
-    'juniper-street-tacos' => [
-        'name' => 'Juniper Street Tacos',
-        'cuisine' => 'Mexican',
-        'price_range' => '$',
-        'description' => 'A lively taqueria known for slow-braised fillings, bright salsas, and fresh tortillas made throughout the day.',
-        'rating' => 4.6,
-        'followers' => 2015,
-        'food_items' => ['Roasted Mushroom Tacos', 'Carnitas Tacos', 'Elote'],
-    ],
-    'harborlight-kitchen' => [
-        'name' => 'Harborlight Kitchen',
-        'cuisine' => 'Seafood',
-        'price_range' => '$$$',
-        'description' => 'A relaxed seafood restaurant featuring daily catches, crisp fish sandwiches, and a sunny waterfront patio.',
-        'rating' => 4.4,
-        'followers' => 860,
-        'food_items' => ['Crispy Fish Sandwich', 'Clam Chowder', 'Catch of the Day'],
-    ],
-    'maple-main-brunch-house' => [
-        'name' => 'Maple & Main Brunch House',
-        'cuisine' => 'Brunch',
-        'price_range' => '$$',
-        'description' => 'An all-day brunch favorite with fluffy pancakes, hearty breakfast bowls, and locally roasted coffee.',
-        'rating' => 4.7,
-        'followers' => 1530,
-        'food_items' => ['Blueberry Pancakes', 'Breakfast Bowl', 'House Latte'],
-    ],
-    'cedar-bowl-noodle-bar' => [
-        'name' => 'Cedar Bowl Noodle Bar',
-        'cuisine' => 'Noodles',
-        'price_range' => '$$',
-        'description' => 'A casual noodle shop dishing up rich broths, hand-pulled noodles, and customizable bowls with seasonal toppings.',
-        'rating' => 4.5,
-        'followers' => 975,
-        'food_items' => ['Spicy Miso Ramen', 'Hand-Pulled Beef Noodles', 'Veggie Udon'],
-    ],
-];
+require_once __DIR__ . '/db.php';
 
 $cuisineOptions = ['Italian', 'Mexican', 'Seafood', 'Brunch', 'Noodles', 'American', 'Asian', 'Other'];
 $priceRangeOptions = ['$', '$$', '$$$', '$$$$'];
 
-// Turns a rating like 4.4 into "★★★★☆".
+const RESTAURANT_SELECT = '
+    SELECT r.restaurant_id AS id,
+           r.name,
+           r.cuisine_type AS cuisine,
+           r.price_range,
+           r.address,
+           r.city,
+           r.phone,
+           r.avg_rating AS rating,
+           (SELECT COUNT(*) FROM follow f WHERE f.restaurant_id = r.restaurant_id) AS followers
+    FROM restaurants r';
+
+function getRestaurants(string $sortField = 'rating', string $sortDirection = 'desc'): array
+{
+    $column = $sortField === 'followers' ? 'followers' : 'rating';
+    $direction = $sortDirection === 'asc' ? 'ASC' : 'DESC';
+
+    return db()->query(RESTAURANT_SELECT . " ORDER BY $column $direction, r.name")->fetchAll();
+}
+
+function getRestaurant(int $restaurantId): ?array
+{
+    $statement = db()->prepare(RESTAURANT_SELECT . ' WHERE r.restaurant_id = ?');
+    $statement->execute([$restaurantId]);
+    return $statement->fetch() ?: null;
+}
+
+function getRestaurantsByIds(array $restaurantIds): array
+{
+    if (count($restaurantIds) === 0) {
+        return [];
+    }
+
+    $placeholders = implode(', ', array_fill(0, count($restaurantIds), '?'));
+    $statement = db()->prepare(RESTAURANT_SELECT . " WHERE r.restaurant_id IN ($placeholders) ORDER BY r.name");
+    $statement->execute(array_values($restaurantIds));
+    return $statement->fetchAll();
+}
+
+function getFollowedRestaurants(int $userId): array
+{
+    $statement = db()->prepare(
+        RESTAURANT_SELECT . ' JOIN follow fl ON fl.restaurant_id = r.restaurant_id WHERE fl.user_id = ? ORDER BY r.name'
+    );
+    $statement->execute([$userId]);
+    return $statement->fetchAll();
+}
+
+function isFollowing(int $userId, int $restaurantId): bool
+{
+    $statement = db()->prepare('SELECT 1 FROM follow WHERE user_id = ? AND restaurant_id = ?');
+    $statement->execute([$userId, $restaurantId]);
+    return $statement->fetchColumn() !== false;
+}
+
+function getFoodItems(int $restaurantId): array
+{
+    $statement = db()->prepare(
+        'SELECT food_item_id AS id, name FROM food_item WHERE restaurant_id = ? ORDER BY food_item_id'
+    );
+    $statement->execute([$restaurantId]);
+    return $statement->fetchAll();
+}
+
+//converts rating into stars
 function ratingStars($rating): string
 {
     $fullStars = max(0, min(5, (int) round((float) $rating)));
     return str_repeat('★', $fullStars) . str_repeat('☆', 5 - $fullStars);
 }
 
-// Placeholder for a restaurant logo/menu photo: the first letters of the first two words.
+function formatRating($rating): string
+{
+    return $rating === null ? 'No ratings yet' : number_format((float) $rating, 1) . ' / 5';
+}
+
 function restaurantInitials(string $name): string
 {
     $words = array_filter(explode(' ', $name), fn ($word) => ctype_alpha(substr($word, 0, 1)));
