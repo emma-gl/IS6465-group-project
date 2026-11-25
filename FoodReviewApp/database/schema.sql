@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -9,8 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS restaurants (
-    membership_id INTEGER PRIMARY KEY,
-    restaurant_id INTEGER NOT NULL UNIQUE,
+    restaurant_id INTEGER PRIMARY KEY,
+    owner_user_id INTEGER NOT NULL,
     name VARCHAR(255) NOT NULL,
     cuisine_type VARCHAR(100) NOT NULL,
     price_range VARCHAR(50) NOT NULL CHECK (price_range IN ('$', '$$', '$$$', '$$$$')),
@@ -18,7 +19,8 @@ CREATE TABLE IF NOT EXISTS restaurants (
     city VARCHAR(100) NOT NULL,
     phone VARCHAR(30) NOT NULL,
     avg_rating DECIMAL(3, 2),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE IF NOT EXISTS premium_membership (

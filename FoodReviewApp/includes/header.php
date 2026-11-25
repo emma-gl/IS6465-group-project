@@ -3,6 +3,7 @@
     <a href="landing-page.php" aria-label="FoodReview home">FoodReview</a>
     <nav class="header-links" aria-label="Account">
         <?php if ($headerUser === null): ?>
+            <a href="register.php">Sign up</a>
             <a class="account-button" href="login.php">Log in</a>
         <?php else: ?>
             <a class="account-button" href="account-info.php">Account Info</a>
