@@ -8,38 +8,41 @@ DELETE FROM premium_membership;
 DELETE FROM restaurants;
 DELETE FROM users;
 
--- make 1 and 2 the test users 
-INSERT INTO users (user_id, first_name, last_name, email, password_hash, role, created_at) VALUES
-    (3, 'Emma',  'Reviewer', 'emma@example.com',  '$2y$12$VsVpQkBA2.8xCsf4YVaqiutGB7VPMUzb7paMSSCufj.sEHZCyqNfq', 'Member', '2026-09-01 10:00:00'),
-    (4, 'Scott', 'Reviewer', 'scott@example.com', '$2y$12$VsVpQkBA2.8xCsf4YVaqiutGB7VPMUzb7paMSSCufj.sEHZCyqNfq', 'Member', '2026-09-01 10:00:00'),
-    (5, 'Nick',  'Reviewer', 'nick@example.com',  '$2y$12$VsVpQkBA2.8xCsf4YVaqiutGB7VPMUzb7paMSSCufj.sEHZCyqNfq', 'Member', '2026-09-01 10:00:00');
+INSERT INTO users (user_id, username, first_name, last_name, email, password_hash, role, created_at) VALUES
+    (1, 'bsmith', 'B', 'Smith', 'bsmith@example.com', '$2y$12$MxvxvE5QzjNw3AZI5lzY5eJ3DjgSAe3U7PPtYomqfUDPIiGD4oR1C', 'Member',     '2026-09-01 10:00:00'),
+    (2, 'pjones', 'P', 'Jones', 'pjones@example.com', '$2y$12$/qopz8wNWbz.YZB4gLYZzuSbXsIZEwX9k1u0ngbEwVfZFagAwL4.e', 'Restaurant', '2026-09-01 10:00:00'),
+    (3, 'emma',   'Emma', 'Reviewer', 'emma@example.com',  '$2y$12$VsVpQkBA2.8xCsf4YVaqiutGB7VPMUzb7paMSSCufj.sEHZCyqNfq', 'Member', '2026-09-01 10:00:00'),
+    (4, 'scott',  'Scott', 'Reviewer', 'scott@example.com', '$2y$12$VsVpQkBA2.8xCsf4YVaqiutGB7VPMUzb7paMSSCufj.sEHZCyqNfq', 'Member', '2026-09-01 10:00:00'),
+    (5, 'nick',   'Nick', 'Reviewer', 'nick@example.com',  '$2y$12$VsVpQkBA2.8xCsf4YVaqiutGB7VPMUzb7paMSSCufj.sEHZCyqNfq', 'Member', '2026-09-01 10:00:00'),
+    (6, 'admin',  'Admin', 'User',  'admin@example.com',  '$2y$12$HnhMUCuxQK3wswXFKFjgK.90BxPJJr6UHqr9.d9qxZPSSaOdIc/cy', 'Admin',      '2026-09-01 10:00:00'),
+    (7, 'grace',  'Grace', 'Owner',  'owner@example.com',  '$2y$12$VsVpQkBA2.8xCsf4YVaqiutGB7VPMUzb7paMSSCufj.sEHZCyqNfq', 'Restaurant',      '2026-09-01 10:00:00');
 
-INSERT INTO restaurants (membership_id, restaurant_id, name, cuisine_type, price_range, address, city, phone, avg_rating, created_at) VALUES
-    (1, 1, 'Olive & Ember',             'Italian', '$$',  '101 Main St',   'Salt Lake City', '801-555-0101', 4.8, '2026-08-01 09:00:00'),
+INSERT INTO restaurants (restaurant_id, owner_user_id, name, cuisine_type, price_range, address, city, phone, avg_rating, created_at) VALUES
+    (1, 2, 'Olive & Ember',             'Italian', '$$',  '101 Main St',   'Salt Lake City', '801-555-0101', 4.8, '2026-08-01 09:00:00'),
     (2, 2, 'Juniper Street Tacos',      'Mexican', '$',   '202 Juniper St', 'Salt Lake City', '801-555-0102', 4.6, '2026-08-01 09:00:00'),
-    (3, 3, 'Harborlight Kitchen',       'Seafood', '$$$', '303 Harbor Way', 'Salt Lake City', '801-555-0103', 4.4, '2026-08-01 09:00:00'),
-    (4, 4, 'Maple & Main Brunch House', 'Brunch',  '$$',  '404 Maple Ave',  'Salt Lake City', '801-555-0104', 4.7, '2026-08-01 09:00:00'),
-    (5, 5, 'Cedar Bowl Noodle Bar',     'Noodles', '$$',  '505 Cedar Blvd', 'Salt Lake City', '801-555-0105', 4.5, '2026-08-01 09:00:00'),
-    (6, 6, 'Wasatch Hearth Pizza',      'Pizza',   '$$',  '606 Canyon Rd', 'Salt Lake City', '801-555-0106', 4.6, '2026-08-02 09:00:00'),
+    (3, 2, 'Harborlight Kitchen',       'Seafood', '$$$', '303 Harbor Way', 'Salt Lake City', '801-555-0103', 4.4, '2026-08-01 09:00:00'),
+    (4, 2, 'Maple & Main Brunch House', 'Brunch',  '$$',  '404 Maple Ave',  'Salt Lake City', '801-555-0104', 4.7, '2026-08-01 09:00:00'),
+    (5, 7, 'Cedar Bowl Noodle Bar',     'Noodles', '$$',  '505 Cedar Blvd', 'Salt Lake City', '801-555-0105', 4.5, '2026-08-01 09:00:00'),
+    (6, 7, 'Wasatch Hearth Pizza',      'Pizza',   '$$',  '606 Canyon Rd', 'Salt Lake City', '801-555-0106', 4.6, '2026-08-02 09:00:00'),
     (7, 7, 'Red Rock Curry House',      'Indian',  '$$',  '707 State St', 'Salt Lake City', '801-555-0107', 4.7, '2026-08-02 09:00:00'),
-    (8, 8, 'Copper Kettle Diner',       'American','$',   '808 900 E', 'Salt Lake City', '801-555-0108', 4.3, '2026-08-02 09:00:00'),
-    (9, 9, 'Saffron & Sage',            'Mediterranean','$$$', '909 300 S', 'Salt Lake City', '801-555-0109', 4.8, '2026-08-02 09:00:00'),
-    (10, 10, 'Little Tokyo Ramen',      'Japanese','$$',  '1010 Main St', 'Salt Lake City', '801-555-0110', 4.5, '2026-08-02 09:00:00'),
-    (11, 11, 'Pinecone Smokehouse',     'BBQ',     '$$',  '1111 700 E', 'Salt Lake City', '801-555-0111', 4.6, '2026-08-02 09:00:00'),
-    (12, 12, 'Garden Gate Cafe',       'Cafe',    '$',   '1212 500 S', 'Salt Lake City', '801-555-0112', 4.4, '2026-08-02 09:00:00'),
-    (13, 13, 'Bluebird Bakery & Cafe', 'Bakery',  '$$',  '1313 200 W', 'Salt Lake City', '801-555-0113', 4.7, '2026-08-02 09:00:00'),
-    (14, 14, 'Canyonlands Taqueria',   'Mexican', '$',   '1414 800 S', 'Salt Lake City', '801-555-0114', 4.5, '2026-08-02 09:00:00'),
-    (15, 15, 'Golden Lotus',           'Vietnamese','$$', '1515 400 E', 'Salt Lake City', '801-555-0115', 4.6, '2026-08-02 09:00:00'),
-    (16, 16, 'Summit Sushi Bar',       'Sushi',   '$$$', '1616 100 S', 'Salt Lake City', '801-555-0116', 4.8, '2026-08-02 09:00:00'),
-    (17, 17, 'Desert Bloom Falafel',   'Middle Eastern','$', '1717 600 E', 'Salt Lake City', '801-555-0117', 4.4, '2026-08-02 09:00:00'),
-    (18, 18, 'Bison & Birch',          'American','$$$', '1818 200 S', 'Salt Lake City', '801-555-0118', 4.7, '2026-08-02 09:00:00'),
-    (19, 19, 'Alpine Table',           'French',  '$$$', '1919 300 E', 'Salt Lake City', '801-555-0119', 4.6, '2026-08-02 09:00:00'),
-    (20, 20, 'Mango Tree Thai Kitchen','Thai',    '$$',  '2020 800 E', 'Salt Lake City', '801-555-0120', 4.5, '2026-08-02 09:00:00'),
-    (21, 21, 'Hearthstone Vegan Kitchen','Vegan', '$$',  '2121 500 E', 'Salt Lake City', '801-555-0121', 4.7, '2026-08-02 09:00:00'),
-    (22, 22, 'Northstar Creperie',     'French',  '$$',  '2222 400 S', 'Salt Lake City', '801-555-0122', 4.3, '2026-08-02 09:00:00'),
-    (23, 23, 'Redwood Steak & Chop',   'Steakhouse','$$$$','2323 900 E', 'Salt Lake City', '801-555-0123', 4.8, '2026-08-02 09:00:00'),
-    (24, 24, 'Pioneer Dumpling House', 'Chinese', '$$',  '2424 200 E', 'Salt Lake City', '801-555-0124', 4.6, '2026-08-02 09:00:00'),
-    (25, 25, 'Citrus & Salt',          'Seafood', '$$$', '2525 300 W', 'Salt Lake City', '801-555-0125', 4.5, '2026-08-02 09:00:00');
+    (8, 7, 'Copper Kettle Diner',       'American','$',   '808 900 E', 'Salt Lake City', '801-555-0108', 4.3, '2026-08-02 09:00:00'),
+    (9, 7, 'Saffron & Sage',            'Mediterranean','$$$', '909 300 S', 'Salt Lake City', '801-555-0109', 4.8, '2026-08-02 09:00:00'),
+    (10, 7, 'Little Tokyo Ramen',      'Japanese','$$',  '1010 Main St', 'Salt Lake City', '801-555-0110', 4.5, '2026-08-02 09:00:00'),
+    (11, 7, 'Pinecone Smokehouse',     'BBQ',     '$$',  '1111 700 E', 'Salt Lake City', '801-555-0111', 4.6, '2026-08-02 09:00:00'),
+    (12, 7, 'Garden Gate Cafe',       'Cafe',    '$',   '1212 500 S', 'Salt Lake City', '801-555-0112', 4.4, '2026-08-02 09:00:00'),
+    (13, 7, 'Bluebird Bakery & Cafe', 'Bakery',  '$$',  '1313 200 W', 'Salt Lake City', '801-555-0113', 4.7, '2026-08-02 09:00:00'),
+    (14, 7, 'Canyonlands Taqueria',   'Mexican', '$',   '1414 800 S', 'Salt Lake City', '801-555-0114', 4.5, '2026-08-02 09:00:00'),
+    (15, 7, 'Golden Lotus',           'Vietnamese','$$', '1515 400 E', 'Salt Lake City', '801-555-0115', 4.6, '2026-08-02 09:00:00'),
+    (16, 7, 'Summit Sushi Bar',       'Sushi',   '$$$', '1616 100 S', 'Salt Lake City', '801-555-0116', 4.8, '2026-08-02 09:00:00'),
+    (17, 7, 'Desert Bloom Falafel',   'Middle Eastern','$', '1717 600 E', 'Salt Lake City', '801-555-0117', 4.4, '2026-08-02 09:00:00'),
+    (18, 7, 'Bison & Birch',          'American','$$$', '1818 200 S', 'Salt Lake City', '801-555-0118', 4.7, '2026-08-02 09:00:00'),
+    (19, 7, 'Alpine Table',           'French',  '$$$', '1919 300 E', 'Salt Lake City', '801-555-0119', 4.6, '2026-08-02 09:00:00'),
+    (20, 7, 'Mango Tree Thai Kitchen','Thai',    '$$',  '2020 800 E', 'Salt Lake City', '801-555-0120', 4.5, '2026-08-02 09:00:00'),
+    (21, 7, 'Hearthstone Vegan Kitchen','Vegan', '$$',  '2121 500 E', 'Salt Lake City', '801-555-0121', 4.7, '2026-08-02 09:00:00'),
+    (22, 7, 'Northstar Creperie',     'French',  '$$',  '2222 400 S', 'Salt Lake City', '801-555-0122', 4.3, '2026-08-02 09:00:00'),
+    (23, 7, 'Redwood Steak & Chop',   'Steakhouse','$$$$','2323 900 E', 'Salt Lake City', '801-555-0123', 4.8, '2026-08-02 09:00:00'),
+    (24, 7, 'Pioneer Dumpling House', 'Chinese', '$$',  '2424 200 E', 'Salt Lake City', '801-555-0124', 4.6, '2026-08-02 09:00:00'),
+    (25, 7, 'Citrus & Salt',          'Seafood', '$$$', '2525 300 W', 'Salt Lake City', '801-555-0125', 4.5, '2026-08-02 09:00:00');
 
 INSERT INTO food_item (food_item_id, restaurant_id, name, description, price, category) VALUES
     (1,  1, 'Cacio e Pepe',             'Handmade pasta with pecorino and black pepper.', 18.00, 'Entree'),
@@ -167,8 +170,8 @@ INSERT INTO review (review_id, user_id, food_item_id, rating, comment, created_a
     (45, 5, 73, 5, 'Bright citrus glaze complements the salmon without overpowering it.', '2026-11-10 12:00:00', '2026-11-10 12:00:00'),
     (46, 3, 75, 4, 'Tart, creamy filling in a crisp crust. A refreshing dessert.', '2026-11-11 12:00:00', '2026-11-11 12:00:00');
 
--- this should be changed to a test user (reviewer)
+
 INSERT INTO follow (user_id, restaurant_id, followed_at) VALUES
-    (3, 1, '2026-09-05 12:00:00'),
-    (3, 3, '2026-09-05 12:00:00'),
-    (3, 5, '2026-09-05 12:00:00');
+    (1, 1, '2026-09-05 12:00:00'),
+    (1, 3, '2026-09-05 12:00:00'),
+    (1, 5, '2026-09-05 12:00:00');

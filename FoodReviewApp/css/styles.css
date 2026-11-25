@@ -561,7 +561,9 @@ body.login-page label {
     margin: 16px 0 8px;
 }
 
-body.login-page input {
+body.login-page input,
+body.login-page select {
+    background: #fff;
     border: 1px solid #cbd5ce;
     border-radius: 6px;
     font: inherit;
@@ -569,7 +571,8 @@ body.login-page input {
     width: 100%;
 }
 
-body.login-page input:focus {
+body.login-page input:focus,
+body.login-page select:focus {
     border-color: #287348;
     outline: 2px solid rgb(40 115 72 / 20%);
 }
@@ -594,6 +597,27 @@ body.login-page button:hover {
 body.login-page .error {
     color: #a12622;
     margin: 0 0 16px;
+}
+
+body.login-page ul.error {
+    line-height: 1.5;
+    padding-left: 20px;
+}
+
+body.login-page .form-row {
+    display: grid;
+    gap: 0 12px;
+    grid-template-columns: 1fr 1fr;
+}
+
+body.login-page .form-switch {
+    margin: 20px 0 0;
+    text-align: center;
+}
+
+body.login-page .form-switch a {
+    color: #287348;
+    font-weight: 600;
 }
 
 body.login-page .temp-note {

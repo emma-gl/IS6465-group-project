@@ -6,23 +6,23 @@ if (isLoggedIn()) {
     exit;
 }
 
-$email = '';
+$login = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $submittedEmail = $_POST['email'] ?? '';
+    $submittedLogin = $_POST['login'] ?? '';
     $submittedPassword = $_POST['password'] ?? '';
 
-    $email = is_string($submittedEmail) ? trim($submittedEmail) : '';
+    $login = is_string($submittedLogin) ? trim($submittedLogin) : '';
     $password = is_string($submittedPassword) ? $submittedPassword : '';
 
-    if ($email === '' || $password === '') {
-        $error = 'Please enter both your email and password.';
-    } elseif (attemptLogin($email, $password)) {
+    if ($login === '' || $password === '') {
+        $error = 'Please enter your username or email and your password.';
+    } elseif (attemptLogin($login, $password)) {
         header('Location: landing-page.php');
         exit;
     } else {
-        $error = 'Incorrect email or password.';
+        $error = 'Incorrect username/email or password.';
     }
 }
 ?>
@@ -44,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post" action="">
-            <label for="email">Email</label>
+            <label for="login">Username or email</label>
             <input
-                type="email"
-                id="email"
-                name="email"
-                value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
+                type="text"
+                id="login"
+                name="login"
+                value="<?= htmlspecialchars($login, ENT_QUOTES, 'UTF-8') ?>"
                 autocomplete="username"
                 required
             >
@@ -65,6 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <button type="submit">Log in</button>
         </form>
+
+        <p class="form-switch">New to FoodReview? <a href="register.php">Create an account</a></p>
     </main>
 </body>
 </html>

@@ -23,10 +23,13 @@ function hasRole(string ...$roles): bool
     return $user !== null && in_array($user['role'], $roles, true);
 }
 
-function attemptLogin(string $email, string $password): bool
+function attemptLogin(string $login, string $password): bool
 {
-    $statement = db()->prepare('SELECT user_id, first_name, password_hash, role FROM users WHERE email = ?');
-    $statement->execute([$email]);
+    $statement = db()->prepare(
+        'SELECT user_id, first_name, password_hash, role FROM users
+         WHERE username = :login COLLATE NOCASE OR email = :login COLLATE NOCASE'
+    );
+    $statement->execute([':login' => $login]);
     $row = $statement->fetch();
 
     if ($row === false || !password_verify($password, $row['password_hash'])) {
@@ -40,6 +43,90 @@ function attemptLogin(string $email, string $password): bool
         'role' => $row['role'],
     ];
     return true;
+}
+
+// Roles a visitor may choose when signing up. Admins are created by hand.
+const REGISTRATION_ROLES = [
+    'Member' => 'Member (write reviews)',
+    'Restaurant' => 'Restaurant owner',
+];
+
+// Creates a new account and logs the user in. Returns a list of error
+// messages; an empty list means the account was created.
+function registerUser(array $data): array
+{
+    $username = $data['username'];
+    $firstName = $data['first_name'];
+    $lastName = $data['last_name'];
+    $email = $data['email'];
+    $password = $data['password'];
+    $role = $data['role'];
+
+    $errors = [];
+
+    if (!preg_match('/^[A-Za-z0-9_.]{3,50}$/', $username)) {
+        $errors[] = 'Username must be 3–50 characters: letters, numbers, dots or underscores.';
+    }
+    if ($firstName === '' || mb_strlen($firstName) > 100) {
+        $errors[] = 'Please enter your first name (up to 100 characters).';
+    }
+    if ($lastName === '' || mb_strlen($lastName) > 100) {
+        $errors[] = 'Please enter your last name (up to 100 characters).';
+    }
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || strlen($email) > 255) {
+        $errors[] = 'Please enter a valid email address.';
+    }
+    if (strlen($password) < 8) {
+        $errors[] = 'Password must be at least 8 characters.';
+    } elseif ($password !== $data['confirm_password']) {
+        $errors[] = 'Passwords do not match.';
+    }
+    if (!array_key_exists($role, REGISTRATION_ROLES)) {
+        $errors[] = 'Please choose an account type.';
+    }
+
+    if ($errors !== []) {
+        return $errors;
+    }
+
+    $taken = db()->prepare(
+        'SELECT
+            SUM(username = :username COLLATE NOCASE) AS username_taken,
+            SUM(email = :email COLLATE NOCASE) AS email_taken
+         FROM users'
+    );
+    $taken->execute([':username' => $username, ':email' => $email]);
+    $row = $taken->fetch();
+    if ((int) $row['username_taken'] > 0) {
+        $errors[] = 'That username is already taken.';
+    }
+    if ((int) $row['email_taken'] > 0) {
+        $errors[] = 'An account with that email already exists.';
+    }
+    if ($errors !== []) {
+        return $errors;
+    }
+
+    $insert = db()->prepare(
+        'INSERT INTO users (username, first_name, last_name, email, password_hash, role)
+         VALUES (?, ?, ?, ?, ?, ?)'
+    );
+    $insert->execute([
+        $username,
+        $firstName,
+        $lastName,
+        $email,
+        password_hash($password, PASSWORD_DEFAULT),
+        $role,
+    ]);
+
+    session_regenerate_id(true);
+    $_SESSION['user'] = [
+        'id' => (int) db()->lastInsertId(),
+        'first_name' => $firstName,
+        'role' => $role,
+    ];
+    return [];
 }
 
 function logout(): void
@@ -92,10 +179,16 @@ function denyAccess(): void
     exit;
 }
 
-// TODO: add owners to restaurants. currently, every owner will own the first 2 restaurants
+// IDs of the restaurants owned by the logged-in restaurant owner.
 function getOwnedRestaurantIds(): array
 {
-    return hasRole('Restaurant') ? [1, 2] : [];
+    if (!hasRole('Restaurant')) {
+        return [];
+    }
+
+    $statement = db()->prepare('SELECT restaurant_id FROM restaurants WHERE owner_user_id = ? ORDER BY restaurant_id');
+    $statement->execute([currentUser()['id']]);
+    return array_map('intval', $statement->fetchAll(PDO::FETCH_COLUMN));
 }
 
 function canAddRestaurant(): bool
